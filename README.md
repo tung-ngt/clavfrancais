@@ -7,6 +7,8 @@ Email: **tung.ngt@outlook.com**
 
 </br>
 
+![image](https://github.com/tung-ngt/clavfrancais/assets/71141898/20873207-063d-43df-a358-06d7a8c54545)
+
 # Manual
 
 ## How to use
