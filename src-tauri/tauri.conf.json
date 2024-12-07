@@ -16,7 +16,9 @@
         "minWidth": 500,
         "minHeight": 300,
         "width": 500,
-        "height": 300
+        "height": 300,
+        "visible": false,
+        "contentProtected": true
       }
     ],
     "security": {
@@ -32,6 +34,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "resources": [
+        "resources/*"
     ]
   }
 }
