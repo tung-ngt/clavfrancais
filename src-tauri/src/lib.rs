@@ -8,6 +8,7 @@ mod toggle_shortcut;
 mod plugins;
 mod window_event;
 mod utils;
+mod tray_menu;
 
 use plugins::RegisterPlugins;
 use commands::RegisterCommands;

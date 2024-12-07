@@ -1,28 +1,31 @@
 use clavfrancais_engine::{
     char_buffer::StackSizedCharBuffer, engine::Engine, input_controller::setup_key_combination_map,
 };
-use std::{path::PathBuf, sync::Mutex, thread};
-use tauri::{image::Image, tray::TrayIconId, AppHandle, Emitter, Manager};
+use std::{sync::Mutex, thread};
+use tauri::{tray::TrayIconId, AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt;
 
-use crate::{app_state::AppState, debug_println, language::Language};
+use crate::{
+    app_state::AppState,
+    debug_println,
+    language::Language,
+    tray_menu::{get_icon_image, TRAY_ICON_ID},
+};
 
 pub fn change_language(app_handle: &AppHandle, language: Language) {
     let app_state = app_handle.state::<Mutex<AppState>>();
     let mut app_state = app_state.lock().unwrap();
 
-    let icon_image = if language == Language::English {
+    if language == Language::English {
         app_state.language = Language::English;
         let _ = app_handle.emit("change_language", Language::English);
-        Image::from_path("resources/uk.png").expect("must have icon file")
     } else {
         app_state.language = Language::French;
         let _ = app_handle.emit("change_language", Language::French);
-        Image::from_path("resources/france.png").expect("must have icon file")
     };
 
     if let Some(tray_icon) = app_handle.tray_by_id(&TrayIconId::new(TRAY_ICON_ID)) {
-        let _ = tray_icon.set_icon(Some(icon_image));
+        let _ = tray_icon.set_icon(Some(get_icon_image(app_state.language)));
     }
 
     if language == Language::French {
@@ -44,8 +47,6 @@ pub fn toggle_language(app_handle: &AppHandle) {
     };
     change_language(app_handle, new_language);
 }
-
-pub const TRAY_ICON_ID: &str = "10";
 
 pub fn start_engine() {
     thread::spawn(|| {

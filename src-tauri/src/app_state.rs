@@ -11,12 +11,6 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(settings: Settings, language: Language) -> Self {
-        Self {
-            language,
-            settings,
-        }
-    }
     pub fn load(path: PathBuf) -> Self {
         if !path.is_file() {
             let app_data = Self::default();
