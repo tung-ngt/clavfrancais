@@ -1,12 +1,14 @@
-pub mod app_state;
-pub mod commands;
-pub mod controllers;
-pub mod language;
-pub mod settings;
-pub mod setup;
-pub mod toggle_shortcut;
-pub mod plugins;
-pub mod window_event;
+mod app_state;
+mod commands;
+mod controllers;
+mod language;
+mod settings;
+mod setup;
+mod toggle_shortcut;
+mod plugins;
+mod window_event;
+mod utils;
+
 use plugins::RegisterPlugins;
 use commands::RegisterCommands;
 use setup::AppSetup;

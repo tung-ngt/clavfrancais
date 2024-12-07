@@ -17,16 +17,17 @@ interface Settings {
     toggleShortcut: ToggleShortcut;
 }
 
-const toggleOptions = [ToggleShortcut.CtrlAlt, ToggleShortcut.AltZ];
+const toggleOptions = [
+    ToggleShortcut.CtrlAlt,
+    // ToggleShortcut.AltZ
+];
 
 const Settings: Component<{}> = () => {
-    const [initialSettings, setInitialSettings] = createSignal<Settings>(
-        {
-            runOnStartup: false,
-            hideToTray: false,
-            toggleShortcut: toggleOptions[0]
-        }
-    );
+    const [initialSettings, setInitialSettings] = createSignal<Settings>({
+        runOnStartup: false,
+        hideToTray: false,
+        toggleShortcut: toggleOptions[0],
+    });
     const [runOnStartUp, setRunOnStartUp] = createSignal(false);
     const [hideToTray, setHideToTray] = createSignal(false);
     const [toggleOption, setToggleOption] = createSignal(toggleOptions[0]);
@@ -34,7 +35,7 @@ const Settings: Component<{}> = () => {
 
     createEffect(async () => {
         const settings = await invoke<Settings>("get_settings_command");
-        setInitialSettings(settings)
+        setInitialSettings(settings);
         setRunOnStartUp(settings.runOnStartup);
         setHideToTray(settings.hideToTray);
         setToggleOption(settings.toggleShortcut);
@@ -44,10 +45,10 @@ const Settings: Component<{}> = () => {
         const settings = {
             runOnStartup: runOnStartUp(),
             hideToTray: hideToTray(),
-            toggleShortcut: toggleOption()
-        }
-        invoke("set_settings_command", {settings})
-        setInitialSettings(settings)
+            toggleShortcut: toggleOption(),
+        };
+        invoke("set_settings_command", { settings });
+        setInitialSettings(settings);
         setSettingsChanged(false);
     };
 

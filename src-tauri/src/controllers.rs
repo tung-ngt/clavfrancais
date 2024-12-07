@@ -1,9 +1,11 @@
-use std::{fs, path::PathBuf, sync::Mutex, thread};
-use clavfrancais_engine::{char_buffer::StackSizedCharBuffer, engine::Engine, input_controller::setup_key_combination_map};
+use clavfrancais_engine::{
+    char_buffer::StackSizedCharBuffer, engine::Engine, input_controller::setup_key_combination_map,
+};
+use std::{path::PathBuf, sync::Mutex, thread};
 use tauri::{image::Image, tray::TrayIconId, AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt;
 
-use crate::{app_state::AppState, language::Language, settings::{Settings, DEFAULT_SETTINGS}, toggle_shortcut::ToggleShortcut};
+use crate::{app_state::AppState, debug_println, language::Language};
 
 pub fn change_language(app_handle: &AppHandle, language: Language) {
     let app_state = app_handle.state::<Mutex<AppState>>();
@@ -29,7 +31,6 @@ pub fn change_language(app_handle: &AppHandle, language: Language) {
         stop_engine();
     }
 }
-
 
 pub fn toggle_language(app_handle: &AppHandle) {
     let new_language = {
@@ -59,63 +60,28 @@ pub fn stop_engine() {
     Engine::stop();
 }
 
-pub fn quit() {
+pub fn quit(app_handle: &AppHandle) {
+    let path = app_handle.path().app_config_dir().unwrap();
+    let app_state = app_handle.state::<Mutex<AppState>>();
+    let app_state = app_state.lock().unwrap();
+    app_state.save(path);
     std::process::exit(0);
 }
 
-pub fn handle_save_settings(app: &AppHandle, path: PathBuf, settings: Settings) {
-    let settings_json = serde_json::to_string(&settings).unwrap();
-    let r = fs::write(path, settings_json);
-    println!("{:?}", r);
-
-    if settings.run_on_startup {
-        enable_run_on_startup(app);
-    } else {
-        disable_run_on_startup(app);
-    }
-}
-
-pub fn handle_load_settings(path: PathBuf) -> Settings {
-    if !path.is_file() {
-        let settings_json = serde_json::to_string(&DEFAULT_SETTINGS).unwrap();
-        let _ = fs::write(&path, settings_json);
-        return DEFAULT_SETTINGS;
-    }
-
-    let settings_json = fs::read_to_string(&path).unwrap();
-    let r = serde_json::from_str(&settings_json);
-
-    if let Ok(settings) = r {
-        return settings;
-    }
-
-    let settings_json = serde_json::to_string(&DEFAULT_SETTINGS).unwrap();
-    let _ = fs::write(&path, settings_json);
-    DEFAULT_SETTINGS
-}
-
-pub fn enable_run_on_startup(app: &AppHandle) {
-    let auto_start_manager = app.autolaunch();
+pub fn enable_run_on_startup(app_handle: &AppHandle) {
+    let auto_start_manager = app_handle.autolaunch();
     if auto_start_manager.is_enabled().unwrap() {
         return;
     }
     let r = auto_start_manager.enable();
-    println!("{:?}", r);
+    debug_println!("{:?}", r);
 }
 
-pub fn disable_run_on_startup(app: &AppHandle) {
-    let auto_start_manager = app.autolaunch();
+pub fn disable_run_on_startup(app_handle: &AppHandle) {
+    let auto_start_manager = app_handle.autolaunch();
     if !auto_start_manager.is_enabled().unwrap() {
         return;
     }
     let r = auto_start_manager.disable();
-    println!("{:?}", r);
-}
-
-pub fn handle_shortcut(app: &AppHandle, toggle_type: ToggleShortcut) {
-    let app_state = app.state::<Mutex<AppState>>();
-    let app_state = app_state.lock().unwrap();
-    if app_state.settings.toggle_shortcut == toggle_type {
-        toggle_language(app);
-    }
+    debug_println!("{:?}", r);
 }

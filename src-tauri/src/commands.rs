@@ -4,14 +4,14 @@ use tauri::{AppHandle, Builder, Manager, Wry};
 
 use crate::{
     app_state::AppState,
-    controllers::{change_language, handle_save_settings, quit, toggle_language},
+    controllers::{change_language, disable_run_on_startup, enable_run_on_startup, quit, toggle_language},
     language::Language,
     settings::Settings,
 };
 
 #[tauri::command]
-pub fn get_language_command(app: AppHandle) -> Language {
-    let app_state = app.state::<Mutex<AppState>>();
+pub fn get_language_command(app_handle: AppHandle) -> Language {
+    let app_state = app_handle.state::<Mutex<AppState>>();
 
     let language = if let Ok(app_state) = app_state.lock() {
         app_state.language
@@ -33,8 +33,8 @@ pub fn toggle_language_command(app_handle: AppHandle) {
 }
 
 #[tauri::command]
-pub fn quit_command() {
-    quit();
+pub fn quit_command(app_handle: AppHandle) {
+    quit(&app_handle);
 }
 
 #[tauri::command]
@@ -49,11 +49,15 @@ pub fn set_settings_command(app_handle: AppHandle, settings: Settings) {
     let app_state = app_handle.state::<Mutex<AppState>>();
     let mut app_state = app_state.lock().unwrap();
     app_state.settings = settings;
-    handle_save_settings(
-        &app_handle,
-        app_handle.path().app_config_dir().unwrap(),
-        settings,
-    );
+
+    if settings.run_on_startup {
+        enable_run_on_startup(&app_handle);
+    } else {
+        disable_run_on_startup(&app_handle);
+    }
+
+    let path = app_handle.path().app_config_dir().unwrap();
+    app_state.save(path);
 }
 
 pub trait RegisterCommands {
