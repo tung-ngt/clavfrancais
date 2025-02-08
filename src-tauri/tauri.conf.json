@@ -17,8 +17,7 @@
         "minHeight": 300,
         "width": 500,
         "height": 300,
-        "visible": false,
-        "contentProtected": true
+        "visible": false
       }
     ],
     "security": {
